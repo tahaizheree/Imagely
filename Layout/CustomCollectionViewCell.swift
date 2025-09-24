@@ -8,13 +8,16 @@
 import UIKit
 
 class CustomCollectionViewCell: UICollectionViewCell {
-    static let identifier = "CustomCllectionViewCell"
+    static let identifier = "CustomCollectionViewCell"
+  
+    
     private let myImageView:  UIImageView = {
         let imageView = UIImageView()
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.backgroundColor = .white
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
@@ -34,13 +37,21 @@ class CustomCollectionViewCell: UICollectionViewCell {
         super.layoutSubviews()
         myImageView.frame = CGRect(x: 0, y: 0, width: contentView.frame.size.width, height: contentView.frame.size.height)}
     
-    func configure(image_url: String){
-        myImageView.load(url: URL(string: image_url)!)
+    func configure(index:Int,image_url: String){
+        let obj = ImageManager.imageCache.object(forKey: image_url as NSString)
+        if(obj != nil) {
+            myImageView.image = obj
+        }
+        else{
+            myImageView.load(index:index,url: URL(string: image_url)!)
+        }
+      
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
         myImageView.image = nil
+//        print("Prepare for reuse")
     }
 }
 
