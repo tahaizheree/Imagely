@@ -8,10 +8,7 @@
 import Foundation
 
 
-protocol ImageManagerDelegate {
-    func updateUIAfterFetch()
-}
-
+//Class instead of struct for mutating reasons
 class ImageManager {
     var delegate : ImageManagerDelegate?
     var images: [Image] = []
