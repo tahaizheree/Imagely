@@ -8,7 +8,7 @@
 import UIKit
 
 class MainScreen: UIViewController {
-    
+    var isGridLayout = true
     var collectionView: UICollectionView?
     
     override func viewDidLoad() {
@@ -28,6 +28,8 @@ class MainScreen: UIViewController {
         
     }
     
+    
+    //MARK: - Screen creation and fetching methods
     func fetchImages() {
         ImageManager.fetchImages()
     }
@@ -36,11 +38,25 @@ class MainScreen: UIViewController {
         view.backgroundColor = .systemBackground
         title = "Main Screen"
         navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Toggle", image: UIImage(systemName: "square.grid.2x2"), target: self, action: #selector(addTapped))
+    }
+    
+    @objc func addTapped() {
+        isGridLayout.toggle()
         
+        let newLayout: UICollectionViewLayout = isGridLayout
+            ? createLayoutTwoColumns()
+            : createLayout()
+        
+        collectionView?.setCollectionViewLayout(newLayout, animated: true)
+        
+        navigationItem.rightBarButtonItem?.image = isGridLayout
+            ? UIImage(systemName: "square.grid.2x2")
+            : UIImage(systemName: "rectangle.grid.1x2")
     }
     
     func collectionViewSetup() {
-        let layout = createLayout()
+        let layout = createLayoutTwoColumns()
         
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView?.register(CustomCollectionViewCell.self, forCellWithReuseIdentifier: CustomCollectionViewCell.identifier)
@@ -50,6 +66,8 @@ class MainScreen: UIViewController {
         view.addSubview(collectionView!)
     }
     
+    
+    //MARK: - Layout Methods
      func createLayout() -> UICollectionViewCompositionalLayout {
         //Items
         let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(2/3), heightDimension: .fractionalHeight(1.0)))
@@ -76,10 +94,30 @@ class MainScreen: UIViewController {
 }
 
 
+
+func createLayoutTwoColumns() -> UICollectionViewCompositionalLayout {
+   //Items
+    let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.5), heightDimension: .fractionalHeight(1.0)))
+    item.contentInsets = NSDirectionalEdgeInsets(top: 2, leading: 2, bottom: 2, trailing: 2)
+   
+    let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1/3)), subitems: [item,item])
+
+   //Sections
+   let section = NSCollectionLayoutSection(group: group)
+  
+   //Return
+   return UICollectionViewCompositionalLayout(section: section)
+  
+
+}
+
+
+
 //MARK: - Collection View Delegates
 
 
 extension MainScreen: UICollectionViewDelegate {
+   
     func collectionView(_ collectionView: UICollectionView,
                         willDisplay cell: UICollectionViewCell,
                         forItemAt indexPath: IndexPath) {
@@ -88,6 +126,22 @@ extension MainScreen: UICollectionViewDelegate {
         if indexPath.item == lastIndex {
             ImageManager.fetchImages()
         }
+    }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let vc = ImageViewController()
+        vc.modalPresentationStyle = .fullScreen
+        vc.modalTransitionStyle = .crossDissolve
+        vc.modalPresentationCapturesStatusBarAppearance = true
+        let url = ImageManager.images[indexPath.row].download_url
+        if let image = ImageManager.imageCache.object(forKey: url as NSString) {
+            
+            vc.config(with: image)
+
+            navigationController?.pushViewController(vc, animated: true)
+        }
+       
     }
 }
 extension MainScreen: UICollectionViewDataSource {
@@ -103,12 +157,7 @@ extension MainScreen: UICollectionViewDataSource {
         return cell
     }
     
-   
-    
 }
-
-
-
 
 //MARK: - Image Manager Delegates
 extension MainScreen : ImageManagerDelegate {

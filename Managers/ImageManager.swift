@@ -16,9 +16,9 @@ import UIKit
     static var images: [Image] = []
      static var imageCache = NSCache<NSString, UIImage>()
      static func fetchImages() {
-        let url = URL(string: "https://picsum.photos/v2/list?page=\(fetchCounter)&limit=30")!
+        let url = URL(string: "https://picsum.photos/v2/list?page=\(fetchCounter)&limit=20")!
         let request = URLRequest(url: url)
-
+         
         URLSession.shared.dataTask(with: request) { (data, response, error) in
             
             guard error == nil else { return }
