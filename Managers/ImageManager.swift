@@ -6,19 +6,19 @@
 //
 
 import Foundation
-
+import UIKit
 
 //Class instead of struct for mutating reasons
-class ImageManager {
-    var delegate : ImageManagerDelegate?
-    var images: [Image] = []
-
-     func fetchImages() {
-        
-        let url = URL(string: "https://picsum.photos/v2/list?page=2&limit=20")!
+ class ImageManager {
+     private init(){}
+    static var delegate : ImageManagerDelegate?
+     static var fetchCounter  = 1
+    static var images: [Image] = []
+     static var imageCache = NSCache<NSString, UIImage>()
+     static func fetchImages() {
+        let url = URL(string: "https://picsum.photos/v2/list?page=\(fetchCounter)&limit=20")!
         let request = URLRequest(url: url)
-
-
+         
         URLSession.shared.dataTask(with: request) { (data, response, error) in
             
             guard error == nil else { return }
@@ -34,8 +34,8 @@ class ImageManager {
         }.resume()
     }
     
-     private func completionOnFetch(images : [Image]) {
-        self.images.removeAll()
+     static func completionOnFetch(images : [Image]) {
+         fetchCounter += 1
         self.images.append(contentsOf: images)
          delegate?.updateUIAfterFetch()
     }

@@ -8,11 +8,14 @@
 import UIKit
 
 extension UIImageView {
-    func load(url: URL) {
-        DispatchQueue.global().async { [weak self] in
+    func load(index: Int,url: URL) {
+ 
+        DispatchQueue.global(qos: .background).async { [weak self] in
+            
             if let data = try? Data(contentsOf: url) {
                 if let image = UIImage(data: data) {
-                    DispatchQueue.main.async {
+                    ImageManager.imageCache.setObject(image, forKey: url.absoluteString as NSString)
+                    DispatchQueue.main.async { [weak self] in
                         self?.image = image
                     }
                 }
