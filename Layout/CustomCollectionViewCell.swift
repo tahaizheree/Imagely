@@ -45,13 +45,11 @@ class CustomCollectionViewCell: UICollectionViewCell {
         else{
             myImageView.load(index:index,url: URL(string: image_url)!)
         }
-      
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
         myImageView.image = nil
-//        print("Prepare for reuse")
     }
 }
 

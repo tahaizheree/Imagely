@@ -12,13 +12,12 @@ import UIKit
  class ImageManager {
      private init(){}
     static var delegate : ImageManagerDelegate?
+     static var fetchCounter  = 1
     static var images: [Image] = []
      static var imageCache = NSCache<NSString, UIImage>()
      static func fetchImages() {
-        
-        let url = URL(string: "https://picsum.photos/v2/list?page=2&limit=30")!
+        let url = URL(string: "https://picsum.photos/v2/list?page=\(fetchCounter)&limit=30")!
         let request = URLRequest(url: url)
-
 
         URLSession.shared.dataTask(with: request) { (data, response, error) in
             
@@ -36,7 +35,7 @@ import UIKit
     }
     
      static func completionOnFetch(images : [Image]) {
-        self.images.removeAll()
+         fetchCounter += 1
         self.images.append(contentsOf: images)
          delegate?.updateUIAfterFetch()
     }
